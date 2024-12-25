@@ -1,0 +1,13 @@
+Django==4.2          # Replace with your Django version
+channels==4.0.0      # Latest version of Django Channels
+channels-redis==4.0.0 # For Redis-backed channel layers (optional but recommended)
+
+# ASGI server (needed for running Django with Channels)
+daphne==4.0.0        # Replace with uvicorn if you prefer: uvicorn[standard]==0.22.0
+
+# WebSocket support (handled by Django Channels, but ensure ASGI dependencies)
+asgiref==3.7.2       # ASGI reference implementation (already a dependency of Django)
+
+# Optional dependencies for testing and development
+pytest-django==4.5.2 # For testing Django apps
+pytest-asyncio==0.21.0 # For testing async views and functions
