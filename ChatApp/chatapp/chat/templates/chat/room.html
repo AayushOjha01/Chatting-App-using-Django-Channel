@@ -21,13 +21,23 @@
             + '/'
         );
 
+        chatSocket.onopen = function(e){
+            console.log("WebSocket connection established successfully");
+        }
+
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            const chatLog = document.querySelector('#chat-log');
+            chatLog.value += (data.message + '\n');
+            chatLog.scrollTop = chatLog.scrollHeight; // Scroll to the bottom
         };
 
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
+            alert('Connection to the chat server lost. Please refresh the page.');
+            setTimeout(function(){
+                location.reload();
+            },3000);
         };
 
         document.querySelector('#chat-message-input').focus();
@@ -39,12 +49,51 @@
 
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
-            const message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
-            messageInputDom.value = '';
-        };
+            const message = messageInputDom.value.trim(); // Trim whitespace
+            if (message) {
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInputDom.value = '';
+            } else {
+                alert('Message cannot be empty.');
+            }
+};
     </script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    #chat-log {
+        width: 100%;
+        height: 300px;
+        margin-bottom: 10px;
+        resize: none;
+        overflow-y: auto;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    #chat-message-input {
+        width: calc(100% - 60px);
+        padding: 10px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    #chat-message-submit {
+        padding: 10px 20px;
+        border: none;
+        background-color: #007BFF;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #chat-message-submit:hover {
+        background-color: #0056b3;
+    }
+</style>
 </body>
 </html>
