@@ -1,0 +1,41 @@
+{% extends 'chat/layout.html' %}
+
+{% block title %} Create Room {% endblock %}
+{% block content %}
+<h2>{{ chat_group.name }}</h2>
+<p>{{ chat_group.description }}</p>
+
+{% if user == chat_group.admin %}
+    <h3>Join Requests</h3>
+    <ul>
+        {% for user_chat in chat_group.userchatgroup_set.all %}
+            {% if not user_chat.is_confirmed %}
+                <li>
+                    {{ user_chat.user.username }}
+                    <form method="POST" action="{% url 'approve_user' group_id=chat_group.id user_id=user_chat.user.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Approve</button>
+                    </form>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<h3>Members</h3>
+<ul>
+    {% for user_chat in chat_group.userchatgroup_set.all %}
+        {% if user_chat.is_confirmed %}
+            <li>{{ user_chat.user.username }}</li>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+{% if not user_chatgroup.is_confirmed %}
+    <form method="POST" action="{% url 'join_chat_group' group_id=chat_group.id %}">
+        {% csrf_token %}
+        <button type="submit">Request to Join</button>
+    </form>
+{% endif %}
+
+{% endblock %}
