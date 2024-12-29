@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import chatGroupForm
-from .models import chatGroup, Usergroup
+from .models import chatGroup, Usergroup, Message
 @login_required
 def index(request):
     user_groups = Usergroup.objects.filter(user=request.user, is_approved=True)
@@ -21,10 +21,12 @@ def index(request):
 def room(request, room_name):
     chat_group = get_object_or_404(chatGroup, name=room_name)
     is_admin = request.user == chat_group.admin
+    messages = Message.objects.filter(chat_group = chat_group).order_by('timestamp')
     return render(request, "chat/room.html", {
         "room_name": room_name,
         "is_admin": is_admin,
         "chat_group": chat_group,
+        "messages" : messages,
     })
 
 @login_required

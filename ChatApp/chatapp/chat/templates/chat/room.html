@@ -1,17 +1,40 @@
 {% extends 'chat/layout.html' %}
 
-{% block title %}Chat Rooms{% endblock %}
+{% block title %}Chat Room{% endblock %}
 
 {% block content %}
 <body>
-    <div id="chat-log" class="chat-log"></div><br>
-    <input id="chat-message-input" type="text" size="100"><br>
-    <input id="chat-message-submit" type="button" value="Send">
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>{{ chat_group.name }}</h2>
+            {% if is_admin %}
+                <div class="admin-buttons">
+                    <button id="pending-requests" type="button" onclick="window.location.href='{% url 'pending_requests' chat_group.id %}'">
+                        <img src="https://img.icons8.com/ios-filled/50/000000/approval.png" alt="Pending Requests" title="Pending Requests">
+                    </button>
+                    <button id="members" type="button" onclick="window.location.href='{% url 'members' chat_group.id %}'">
+                        <img src="https://img.icons8.com/ios-filled/50/000000/group.png" alt="Members" title="Members">
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+        <div id="chat-log" class="chat-log">
+            {% for message in messages %}
+                <div class="message {% if message.user == request.user %}message-right{% else %}message-left{% endif %}">
+                    <div class="message-content">
+                        <strong>{{ message.user.username }}:</strong> {{ message.content }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="chat-input">
+            <input id="chat-message-input" type="text" placeholder="Type a message...">
+            <button id="emoji-button" class="btn btn-secondary">😊</button>
+            <button id="chat-message-submit" class="btn btn-primary">Send</button>
+        </div>
+    </div>
     {{ room_name|json_script:"room-name" }}
-    {% if is_admin %}
-        <button id="pending-requests" type="button" onclick="window.location.href='{% url 'pending_requests' chat_group.id %}'">Pending Requests</button>
-        <button id="members" type="button" onclick="window.location.href='{% url 'members' chat_group.id %}'">Members</button>
-    {% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         const username = "{{ request.user.username }}"; // Get the username from the Django template context
@@ -42,7 +65,7 @@
             }
 
             // Set message content
-            messageElement.innerHTML = `<strong>${data.username}:</strong> ${data.message}`;
+            messageElement.innerHTML = `<div class="message-content"><strong>${data.username}:</strong> ${data.message}</div>`;
             chatLog.appendChild(messageElement);
 
             // Auto-scroll to the bottom
@@ -75,20 +98,62 @@
                 messageInputDom.value = '';
             }
         };
+
+        // Initialize Emoji Button
+        const button = document.querySelector('#emoji-button');
+        const picker = new EmojiButton();
+        picker.on('emoji', emoji => {
+            const input = document.querySelector('#chat-message-input');
+            input.value += emoji;
+        });
+        button.addEventListener('click', () => {
+            picker.togglePicker(button);
+        });
     </script>
     <style>
-        .chat-log {
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 80vh; /* Reduced height */
+            max-width: 800px;
+            margin: 0 auto;
             border: 1px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
             padding: 10px;
-            height: 400px;
+        }
+        .admin-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .admin-buttons button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .admin-buttons img {
+            width: 24px;
+            height: 24px;
+        }
+        .chat-log {
+            flex: 1;
+            padding: 10px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
         .message {
-            padding: 10px;
+            display: flex;
             margin: 5px 0;
-            border-radius: 5px;
+            padding: 10px;
+            border-radius: 10px;
             max-width: 60%;
         }
         .message-left {
@@ -96,8 +161,43 @@
             align-self: flex-start;
         }
         .message-right {
-            background-color: #d1e7dd;
+            background-color: #007bff;
+            color: white;
             align-self: flex-end;
+        }
+        .message-content {
+            word-wrap: break-word;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+        #chat-message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        #emoji-button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f1f1f1;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        #chat-message-submit {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        #chat-message-submit:hover {
+            background-color: #0056b3;
         }
     </style>
 </body>
