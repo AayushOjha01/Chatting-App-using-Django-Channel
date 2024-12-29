@@ -7,21 +7,10 @@ from django.contrib.auth.models import User
 from .forms import chatGroupForm
 from .models import chatGroup, Usergroup
 @login_required
-def index(request):
-    if request.method == 'POST':
-        group_name = request.POST['group_name']
-        try:
-            chat_group = chatGroup.objects.get(name=group_name)
-            user_group, created = Usergroup.objects.get_or_create(user=request.user, chat_group=chat_group)
-            if created:
-                messages.success(request, "Request to join the group has been sent to the admin.")
-            else:
-                messages.info(request, "You have already requested to join this group.")
-        except chatGroup.DoesNotExist:
-            messages.error(request, "Group does not exist.")
-    
+def index(request)
     user_groups = Usergroup.objects.filter(user=request.user, is_approved=True)
     admin_groups = chatGroup.objects.filter(admin=request.user)
+    
     return render(request, "chat/index.html", {
         "user_groups": user_groups,
         "admin_groups": admin_groups,
