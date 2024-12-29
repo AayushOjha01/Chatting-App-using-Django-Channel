@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from .forms import chatGroupForm
 from .models import chatGroup, Usergroup
 @login_required
-def index(request)
+def index(request):
     user_groups = Usergroup.objects.filter(user=request.user, is_approved=True)
     admin_groups = chatGroup.objects.filter(admin=request.user)
     
@@ -60,15 +60,24 @@ def join_chat_group(request):
     
 @login_required  
 def approve_user(request, group_id, user_id):
-    chat_group = get_object_or_404(chatGroup, id = group_id)
-    user_chat_group = get_object_or_404(Usergroup, chat_group = chat_group, user_id = user_id)\
+    chat_group = get_object_or_404(chatGroup, id=group_id)
+    user_chat_group = get_object_or_404(Usergroup, chat_group=chat_group, user_id=user_id)
     
     if request.user == chat_group.admin:
         user_chat_group.is_approved = True
         user_chat_group.save()
 
-    return redirect('index', group_id = group_id)
+    return redirect('room', room_name=chat_group.name)
 
+@login_required
+def members(request, group_id):
+    chat_group = get_object_or_404(chatGroup, id=group_id)
+    members = Usergroup.objects.filter(chat_group=chat_group, is_approved=True)
+    
+    return render(request, 'chat/members.html', {
+        'chat_group': chat_group,
+        'members': members,
+    })
 
 def login_view(request):
     if request.method == 'POST':

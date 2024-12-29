@@ -1,0 +1,12 @@
+{% extends 'chat/layout.html' %}
+
+{% block title %}Members of {{ chat_group.name }}{% endblock %}
+
+{% block content %}
+    <h2>Members of {{ chat_group.name }}</h2>
+    <ul>
+        {% for member in members %}
+            <li>{{ member.user.username }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

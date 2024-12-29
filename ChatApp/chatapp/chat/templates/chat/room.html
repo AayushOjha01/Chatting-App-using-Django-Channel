@@ -9,10 +9,8 @@
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
     {% if is_admin %}
-    <button id="pending-requests" type="button" 
-    onclick=window.location.href="{% url 'pending_requests' chat_group.id %}">
-Pending Requests
-</button>
+        <button id="pending-requests" type="button" onclick="window.location.href='{% url 'pending_requests' chat_group.id %}'">Pending Requests</button>
+        <button id="members" type="button" onclick="window.location.href='{% url 'members' chat_group.id %}'">Members</button>
     {% endif %}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
