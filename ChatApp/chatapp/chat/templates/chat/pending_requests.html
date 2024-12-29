@@ -1,0 +1,20 @@
+{% extends 'chat/layout.html' %}
+
+{% block title %}Pending Requests{% endblock %}
+
+{% block content %}
+    <h2>Pending Join Requests for {{ chat_group.name }}</h2>
+    <ul>
+        {% for request in join_requests %}
+            <li>
+                {{ request.user.username }}
+                {% if request.user == chat_group.admin %}
+                <form method="POST" action="{% url 'approve_user' chat_group.id request.user.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Approve</button>
+                </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,15 +1,22 @@
 {% extends 'chat/layout.html' %}
 
-{% block title %}{{room_name}} Room{% endblock %}
+{% block title %}Chat Rooms{% endblock %}
 
 {% block content %}
 <body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <div id="chat-log" class="chat-log"></div><br>
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
+    {% if is_admin %}
+    <button id="pending-requests" type="button" 
+    onclick=window.location.href="{% url 'pending_requests' chat_group.id %}">
+Pending Requests
+</button>
+    {% endif %}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        const username = "{{ request.user.username }}"; // Get the username from the Django template context
 
         const chatSocket = new WebSocket(
             'ws://'
@@ -21,13 +28,27 @@
 
         chatSocket.onopen = function(e){
             console.log("WebSocket connection established successfully");
-        }
+        };
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             const chatLog = document.querySelector('#chat-log');
-            chatLog.value += (data.message + '\n');
-            chatLog.scrollTop = chatLog.scrollHeight; // Scroll to the bottom
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            
+            // Add alignment classes based on the sender
+            if (data.username === username) {
+                messageElement.classList.add('message-right');
+            } else {
+                messageElement.classList.add('message-left');
+            }
+
+            // Set message content
+            messageElement.innerHTML = `<strong>${data.username}:</strong> ${data.message}`;
+            chatLog.appendChild(messageElement);
+
+            // Auto-scroll to the bottom
+            chatLog.scrollTop = chatLog.scrollHeight;
         };
 
         chatSocket.onclose = function(e) {
@@ -35,62 +56,51 @@
             alert('Connection to the chat server lost. Please refresh the page.');
             setTimeout(function(){
                 location.reload();
-            },3000);
+            }, 3000);
         };
 
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function(e) {
-            if (e.key === 'Enter') {  // enter, return
+            if (e.key === 'Enter') {  // Enter key
                 document.querySelector('#chat-message-submit').click();
             }
         };
 
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
-            const message = messageInputDom.value.trim(); // Trim whitespace
+            const message = messageInputDom.value.trim();
             if (message) {
                 chatSocket.send(JSON.stringify({
+                    'username': username,
                     'message': message
                 }));
                 messageInputDom.value = '';
-            } else {
-                alert('Message cannot be empty.');
             }
-};
+        };
     </script>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-    }
-    #chat-log {
-        width: 100%;
-        height: 300px;
-        margin-bottom: 10px;
-        resize: none;
-        overflow-y: auto;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    #chat-message-input {
-        width: calc(100% - 60px);
-        padding: 10px;
-        margin-right: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    #chat-message-submit {
-        padding: 10px 20px;
-        border: none;
-        background-color: #007BFF;
-        color: white;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    #chat-message-submit:hover {
-        background-color: #0056b3;
-    }
-</style>
+    <style>
+        .chat-log {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            max-width: 60%;
+        }
+        .message-left {
+            background-color: #f1f1f1;
+            align-self: flex-start;
+        }
+        .message-right {
+            background-color: #d1e7dd;
+            align-self: flex-end;
+        }
+    </style>
+</body>
 {% endblock %}

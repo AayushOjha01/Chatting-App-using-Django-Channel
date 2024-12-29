@@ -3,21 +3,55 @@
 {% block title %}Chat Rooms{% endblock %}
 
 {% block content %}
-    What chat room would you like to enter?<br>
-    <input id="room-name-input" type="text" size="100"><br>
-    <input id="room-name-submit" type="button" value="Enter">
+    <h2>Your Chat Groups</h2>
+    <div class="group-container">
+        {% for group in user_groups %}
+            <div class="group-box" onclick="window.location.href='{% url 'room' room_name=group.chat_group.name %}'">
+                {{ group.chat_group.name }}
+            </div>
+        {% endfor %}
+    </div>
 
-    <script>
-        document.querySelector('#room-name-input').focus();
-        document.querySelector('#room-name-input').onkeyup = function(e) {
-            if (e.key === 'Enter') {  // enter, return
-                document.querySelector('#room-name-submit').click();
-            }
-        };
+    <h2>Groups You Admin</h2>
+    <div class="group-container">
+        {% for group in admin_groups %}
+            <div class="group-box" onclick="window.location.href='{% url 'room' room_name=group.name %}'">
+                {{ group.name }}
+            </div>
+        {% endfor %}
+    </div>
 
-        document.querySelector('#room-name-submit').onclick = function(e) {
-            var roomName = document.querySelector('#room-name-input').value;
-            window.location.pathname = '/chat/' + roomName + '/';
-        };
-    </script>
+    <h2>Join a Chat Group</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <form method="POST" action="{% url 'join_chat_group' %}">
+        {% csrf_token %}
+        <input id="group-name-input" name="group_name" type="text" size="100" placeholder="Enter group name"><br>
+        <button type="submit">Join Group</button>
+    </form>
+    <a href="{% url 'create_chat_group' %}">Create chat group</a>
+
+    <style>
+        .group-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .group-box {
+            padding: 20px;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .group-box:hover {
+            background-color: #e1e1e1;
+        }
+    </style>
 {% endblock %}

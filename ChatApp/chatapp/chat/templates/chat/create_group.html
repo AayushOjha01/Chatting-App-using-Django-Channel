@@ -1,9 +1,8 @@
 {% extends 'chat/layout.html' %}
 
-{% block title %}Chat Rooms{% endblock %}
+{% block title %}Create Chat Group{% endblock %}
 
 {% block content %}
-
 <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
