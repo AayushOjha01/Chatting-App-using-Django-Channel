@@ -106,13 +106,6 @@ ChatApp is a real-time chat application built with Django and WebSockets. It all
 6. **Access the Application**
    Navigate to your server's address to start using the application.
 
-## Deployment
-
-1. **Setup Production Database:** Configure a production-ready database (e.g., PostgreSQL).
-2. **Configure ASGI Server:** Use Daphne or Uvicorn for ASGI support.
-3. **Setup a Reverse Proxy:** Use Nginx or Apache to serve the application.
-4. **Enable HTTPS:** Secure your application with SSL/TLS.
-
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
@@ -122,16 +115,8 @@ Contributions are welcome! Please follow these steps:
 3. Commit your changes and push to your fork.
 4. Submit a pull request for review.
 
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
 ## Acknowledgments
 
 - Django and Django Channels documentation
 - Open-source libraries and tools used in this project
-
-## Contact
-
-For questions or support, please contact [your-email@example.com](mailto:your-email@example.com).
 
