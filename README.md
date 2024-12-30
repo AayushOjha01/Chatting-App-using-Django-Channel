@@ -65,6 +65,53 @@ ChatApp is a real-time chat application built with Django and WebSockets. It all
 
 - **Database:** Modify the `DATABASES` setting in `settings.py` to use a different database.
 - **WebSocket Settings:** Configure `ASGI_APPLICATION` and `CHANNEL_LAYERS` for WebSocket support.
+- **Static Files:** Ensure `STATIC_URL` and `STATICFILES_DIRS` are correctly configured.
+
+## Running Daphne Server with Redis in Docker
+
+1. **Start Redis in Docker**
+   ```bash
+   docker run -d --name redis -p 6379:6379 redis
+   ```
+
+2. **Install Daphne**
+   ```bash
+   pip install daphne
+   ```
+
+3. **Update ASGI Configuration**
+   Ensure `ASGI_APPLICATION` is set correctly in `settings.py`, e.g.,
+   ```python
+   ASGI_APPLICATION = "chatapp.asgi.application"
+   ```
+
+4. **Run Daphne Server**
+   ```bash
+   daphne -b 0.0.0.0 -p 8000 chatapp.asgi:application
+   ```
+
+5. **Configure CHANNEL_LAYERS for Redis**
+   Add the following to your `settings.py`:
+   ```python
+   CHANNEL_LAYERS = {
+       "default": {
+           "BACKEND": "channels_redis.core.RedisChannelLayer",
+           "CONFIG": {
+               "hosts": [("127.0.0.1", 6379)],
+           },
+       },
+   }
+   ```
+
+6. **Access the Application**
+   Navigate to your server's address to start using the application.
+
+## Deployment
+
+1. **Setup Production Database:** Configure a production-ready database (e.g., PostgreSQL).
+2. **Configure ASGI Server:** Use Daphne or Uvicorn for ASGI support.
+3. **Setup a Reverse Proxy:** Use Nginx or Apache to serve the application.
+4. **Enable HTTPS:** Secure your application with SSL/TLS.
 
 ## Contributing
 
@@ -84,4 +131,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 - Django and Django Channels documentation
 - Open-source libraries and tools used in this project
 
+## Contact
+
+For questions or support, please contact [your-email@example.com](mailto:your-email@example.com).
 
